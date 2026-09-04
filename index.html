@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TraceLens SDK Test</title>
+</head>
+<body>
+    <h2>My Test App</h2>
+    <button onclick="triggerCrash()">Simulate Real Crash</button>
+
+    <script>
+        // 1. TraceLens Error SDK (The "Package")
+        window.onerror = function (message, source, lineno, colno, error) {
+            fetch('http://localhost:3000/api/incidents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer 80df8997-8564-4018-b818-b5a67fe26d61'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    stackTrace: error ? error.stack : 'No stack trace',
+                    service: 'testing-tracelens-app'
+                })
+            });
+        };
+
+        // 2. Intentional Bug
+        function triggerCrash() {
+            const fakeData = undefined;
+            console.log(fakeData.crashMe); // This will throw an error!
+        }
+    </script>
+</body>
+</html>
