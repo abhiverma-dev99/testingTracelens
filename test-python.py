@@ -1,3 +1,8 @@
+import urllib.request
+import json
+import traceback
+import ssl
+
 def trigger_python_crash():
     print("Starting Python analytics worker...")
 
