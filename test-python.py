@@ -1,32 +1,26 @@
-import urllib.request
-import json
-import traceback
-import ssl
-
 def trigger_python_crash():
     print("Starting Python analytics worker...")
+
     try:
-        # FAKE BUG: RuntimeError: dictionary changed size during iteration
-        active_users = {'user1': 'online', 'user2': 'offline', 'user3': 'online'}
-        
-        # Iteration ke dauran dictionary modify karna allow nahi hai
-        for user, status in active_users.items():
-            if status == 'offline':
-                del active_users[user] 
-                
+        # Intentional bug for TraceLens testing
+        total_users = 10
+        active_users = 0
+
+        crash = total_users / active_users
+
     except Exception as e:
         print("Python crash detected! Sending to TraceLens...")
-        
+
         payload = {
             "message": str(e),
             "stackTrace": traceback.format_exc(),
             "service": "python-analytics-worker"
         }
-        
+
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        
+
         req = urllib.request.Request(
             'https://tracelens-7hdm.onrender.com/api/incidents',
             data=json.dumps(payload).encode('utf-8'),
@@ -36,11 +30,12 @@ def trigger_python_crash():
             },
             method='POST'
         )
-        
+
         try:
             urllib.request.urlopen(req, context=ctx)
             print("Error successfully reported from Python!")
         except Exception as req_err:
             print("Failed to send:", req_err)
+
 
 trigger_python_crash()
