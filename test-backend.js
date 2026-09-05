@@ -1,19 +1,20 @@
 // test-backend.js
 
-async function simulateDatabaseCrash() {
-  console.log("Starting backend process...");
+async function triggerLiveError() {
+  console.log("Starting production auth service...");
   
   try {
-    // FAKE BUG: Developer ne naya config object banaya par usko define nahi kiya
-    const dbConfig = undefined; 
+    // FAKE BUG 2: API response null aayi, aur hum us par .map() chala rahe hain
+    const apiResponse = null;
     
-    // Yeh line crash ho jayegi kyunki dbConfig undefined hai
-    console.log("Connecting to database at: " + dbConfig.host); 
+    // Yeh line crash hogi: Cannot read properties of null (reading 'map')
+    const userNames = apiResponse.map(user => user.name); 
 
   } catch (error) {
-    console.log("Error caught in Node.js! Sending to TraceLens...");
+    console.log("Crash detected! Sending to Live TraceLens Cloud...");
 
-    await fetch('http://localhost:3000/api/incidents', {
+    // Yahan tumhara LIVE Back4App ka URL hai
+    await fetch('https://tracelens-0dakofo6.b4a.run/api/incidents', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -22,12 +23,12 @@ async function simulateDatabaseCrash() {
       body: JSON.stringify({
         message: error.message,
         stackTrace: error.stack,
-        service: 'testing-node-backend' 
+        service: 'production-auth-service' // Nayi service ka naam
       })
     });
     
-    console.log("Error successfully reported to TraceLens Dashboard!");
+    console.log("Error successfully reported to Live Dashboard!");
   }
 }
 
-simulateDatabaseCrash();
+triggerLiveError();
